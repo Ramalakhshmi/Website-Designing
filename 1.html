@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Study Room</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root{
+  --card:#ffffff;
+  --text:#2e1065;
+  --accent:#a855f7;
+  --neon:#c084fc;
+}
+
+/* BODY */
+body{
+  margin:0;
+  font-family:Poppins, sans-serif;
+  background:linear-gradient(135deg,#f3e8ff,#ede9fe,#e9d5ff,#f5e1ff);
+  background-size:400% 400%;
+  animation:flow 18s ease infinite;
+  color:var(--text);
+}
+@keyframes flow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* DARK MODE */
+.dark{
+  background:#020617 !important;
+  animation:none !important;
+  --card:#0f172a;
+  --text:#f1f5f9;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  inset:0;
+  background:#7c3aed;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  font-weight:bold;
+  z-index:9999;
+}
+
+/* TOP BAR */
+.topbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:60px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(12px);
+  z-index:100;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+.dark .topbar{background:#020617;}
+.mode{position:absolute; right:20px}
+
+/* MAIN HEADING */
+.main-heading{
+  margin-top:95px;
+  text-align:center;
+  font-size:40px;
+  font-weight:700;
+  color:#7c3aed;
+  text-shadow:0 0 14px rgba(168,85,247,0.6);
+}
+.dark .main-heading{color:#c084fc}
+
+/* QUOTE */
+.quote{
+  text-align:center;
+  font-size:20px;
+  font-weight:600;
+  margin-bottom:20px;
+}
+
+/* SECTION */
+section{display:none}
+section.active{display:block}
+
+/* GRID */
+.main{
+  padding:25px;
+  display:grid;
+  grid-template-columns:260px 1fr 300px;
+  gap:22px;
+}
+
+/* CARD DESIGN */
+.card{
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(10px);
+  border:1.5px solid var(--neon);
+  box-shadow:0 0 18px rgba(192,132,252,.4);
+  border-radius:20px;
+  padding:18px;
+  margin-bottom:16px;
+  transition:0.3s;
+}
+.dark .card{background:#0f172a;}
+.card:hover{transform:translateY(-6px);}
+
+/* WEEKLY GRAPH */
+.graph{
+  display:flex;
+  align-items:flex-end;
+  height:150px;
+  gap:8px;
+}
+.bar-wrap{text-align:center;flex:1;}
+.bar{
+  width:100%;
+  border-radius:8px;
+  animation:grow 1s ease;
+}
+.low{background:#ef4444;}
+.mid{background:#f59e0b;}
+.high{background:linear-gradient(#22c55e,#16a34a);}
+@keyframes grow{from{height:0}}
+.day-label{font-size:12px;margin-top:6px;font-weight:500;}
+
+/* CALENDAR */
+.calendar-head{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  text-align:center;
+  font-weight:600;
+  font-size:13px;
+}
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:8px;
+}
+.day{
+  padding:12px 0;
+  text-align:center;
+  border-radius:12px;
+  background:#ede9fe;
+  cursor:pointer;
+  font-weight:600;
+}
+.day.active{background:#a855f7;color:white}
+.day.today{
+  border:2px solid red;
+  background:#fde68a;
+  font-weight:bold;
+}
+
+/* DARK CALENDAR FIX */
+.dark .day{background:#1e293b;color:white;}
+.dark .day.today{background:#facc15;color:black;}
+.dark .day.active{background:#7c3aed;color:white;}
+
+/* CENTER */
+.center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+}
+.timer{
+  font-size:80px;
+  font-weight:700;
+  color:#7c3aed;
+}
+.dark .timer{color:#c084fc}
+
+/* BADGES */
+.badges{display:flex;gap:10px;flex-wrap:wrap;}
+.badge{
+  padding:10px 16px;
+  background:linear-gradient(#c084fc,#a855f7);
+  color:white;
+  border-radius:16px;
+  font-size:14px;
+}
+
+/* BUTTON */
+button{
+  padding:10px 18px;
+  border:none;
+  border-radius:18px;
+  background:var(--accent);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+}
+button:hover{transform:scale(1.05);}
+
+/* CHATBOT BUTTON */
+#botBtn{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  padding:18px;
+  border-radius:50%;
+  font-size:22px;
+  background:linear-gradient(#c084fc,#a855f7);
+  color:white;
+  box-shadow:0 0 30px var(--neon);
+  cursor:pointer;
+}
+
+/* CHATBOT PANEL */
+#bot{
+  position:fixed;
+  bottom:95px;
+  right:24px;
+  width:360px;
+  background:var(--card);
+  border-radius:22px;
+  display:none;
+  flex-direction:column;
+  border:2px solid var(--neon);
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+.botH{
+  background:linear-gradient(#c084fc,#a855f7);
+  color:white;
+  padding:14px;
+  text-align:center;
+  font-weight:700;
+  border-radius:20px 20px 0 0;
+}
+.botB{
+  height:240px;
+  overflow:auto;
+  padding:12px;
+  font-size:14px;
+}
+.msgU{
+  text-align:right;
+  background:#ddd6fe;
+  padding:8px 12px;
+  border-radius:12px;
+  margin:6px 0;
+}
+.msgB{
+  background:#ede9fe;
+  padding:8px 12px;
+  border-radius:12px;
+  margin:6px 0;
+}
+.dark .msgU{background:#334155;color:white;}
+.dark .msgB{background:#1e293b;color:white;}
+
+#bot input{
+  width:95%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  margin:8px;
+  font-family:Poppins;
+}
+
+/* GUIDE & NOTES CENTER */
+#guide .main,#notes .main{
+  display:flex !important;
+  justify-content:center;
+}
+#guide .card,#notes .card{
+  text-align:center;
+  width:65%;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .main{grid-template-columns:1fr;}
+  .timer{font-size:60px;}
+  #bot{width:92%;right:4%;}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">Loading Smart Study Room...</div>
+
+<header class="topbar">
+  <button onclick="showSection('home')">Home</button>
+  <button onclick="showSection('guide')">Guide</button>
+  <button onclick="showSection('notes')">Notes</button>
+  <button class="mode" onclick="toggleMode()">🌙</button>
+</header>
+
+<!-- HEADING + QUOTE -->
+<h1 class="main-heading">Smart Study Room</h1>
+<div class="quote">“Consistency beats motivation.”</div>
+
+<!-- HOME -->
+<section id="home" class="active">
+<div class="main">
+
+<!-- LEFT -->
+<div>
+  <div class="card"><h4>🔥 Streak</h4><p id="streak">0 days</p></div>
+
+  <div class="card">
+    <h4>📊 Weekly Progress</h4>
+    <div class="graph" id="weekGraph"></div>
+  </div>
+
+  <div class="card">
+    <h4>🗓 Study Calendar</h4>
+    <select id="monthSelect" onchange="generateCalendar()">
+      <option value="0">January</option><option value="1">February</option>
+      <option value="2">March</option><option value="3">April</option>
+      <option value="4">May</option><option value="5">June</option>
+      <option value="6">July</option><option value="7">August</option>
+      <option value="8">September</option><option value="9">October</option>
+      <option value="10">November</option><option value="11">December</option>
+    </select>
+
+    <div class="calendar-head">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+      <span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div class="calendar" id="calendar"></div>
+  </div>
+</div>
+
+<!-- CENTER -->
+<div class="center">
+  <div class="card">
+    <h3>📚 Subjects</h3>
+    <select id="subject">
+      <option>Tamil</option>
+      <option>French</option>
+    </select>
+    <button onclick="addSubject()">➕ Add</button>
+  </div>
+
+  <div class="timer" id="timer">25:00</div>
+
+  <div>
+    <input type="number" id="mins" placeholder="Minutes"><br><br>
+    <button onclick="start()">Start</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+
+  <div class="card">
+    <h4>🎵 Study Music</h4>
+    <audio id="music" controls></audio><br><br>
+    <button onclick="play(1)">Music 1</button>
+    <button onclick="play(2)">Music 2</button>
+    <button onclick="play(3)">Music 3</button>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div>
+  <div class="card"><h4>📌 Current Subject</h4><p id="current">None</p></div>
+
+  <div class="card">
+    <h4>📅 Timetable</h4>
+    <input id="tTime" placeholder="Time">
+    <input id="tSub" placeholder="Subject">
+    <button onclick="addSlot()">Add</button>
+    <ul id="table"></ul>
+  </div>
+
+  <div class="card"><h4>✅ Completed Subjects</h4><ul id="completed"></ul></div>
+
+  <div class="card">
+    <h4>🏅 Badges</h4>
+    <div class="badges">
+      <div class="badge">🔥 Focus Starter</div>
+      <div class="badge">⏱ Time Master</div>
+    </div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- GUIDE -->
+<section id="guide">
+<div class="main">
+<div class="card">
+<h2>📘 Guide</h2>
+<p>Select subject → set time → start focus.</p>
+<p>Use calendar & streaks to stay consistent.</p>
+<p>Music helps maintain concentration.</p>
+</div>
+</div>
+</section>
+
+<!-- NOTES -->
+<section id="notes">
+<div class="main">
+<div class="card">
+<h2>📝 Notes</h2>
+<textarea style="width:100%;height:300px;border-radius:14px;padding:12px;font-family:Poppins"></textarea>
+</div>
+</div>
+</section>
+
+<!-- CHATBOT -->
+<div id="botBtn" onclick="toggleBot()">💬</div>
+<div id="bot">
+  <div class="botH">🤖 FocusBot Assistant</div>
+  <div class="botB" id="botBody"></div>
+
+  <div style="padding:8px;display:flex;flex-wrap:wrap;gap:6px">
+    <button onclick="botSuggest('study plan')">Study Plan</button>
+    <button onclick="botSuggest('motivation')">Motivation</button>
+    <button onclick="botSuggest('time')">Focus Timer</button>
+    <button onclick="botSuggest('subject')">Subject Tips</button>
+  </div>
+
+  <input id="botInput" placeholder="Type here & press Enter">
+</div>
+
+<script>
+window.onload=()=>document.getElementById("loader").style.display="none";
+
+/* SECTION SWITCH */
+function showSection(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* DARK MODE */
+function toggleMode(){document.body.classList.toggle("dark")}
+
+/* TIMER */
+let time=1500,intv,streak=0;
+function update(){timer.innerText=Math.floor(time/60)+":"+String(time%60).padStart(2,"0");}
+function start(){
+  if(mins.value) time=mins.value*60;
+  current.innerText=subject.value;
+  if(intv) return;
+  intv=setInterval(()=>{
+    if(time>0){time--;update();}
+    else{
+      clearInterval(intv);intv=null;
+      streak++;
+      streakEl.innerText=streak+" days";
+      completed.innerHTML+=`<li>${current.innerText}</li>`;
+    }
+  },1000);
+}
+function reset(){clearInterval(intv);intv=null;time=1500;update();}
+function play(n){music.src=`https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${n}.mp3`;music.play();}
+function addSubject(){let s=prompt("Subject name");if(s) subject.innerHTML+=`<option>${s}</option>`;}
+function addSlot(){table.innerHTML+=`<li>${tTime.value} - ${tSub.value}</li>`;}
+
+/* WEEKLY GRAPH */
+const weekData=[60,30,80,50,90,40,70];
+function loadWeeklyGraph(){
+  const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  weekGraph.innerHTML="";
+  for(let i=0;i<7;i++){
+    let cls="mid";
+    if(weekData[i]<40) cls="low";
+    if(weekData[i]>70) cls="high";
+    weekGraph.innerHTML+=`
+    <div class="bar-wrap">
+      <div class="bar ${cls}" style="height:${weekData[i]}%"></div>
+      <div class="day-label">${days[i]}</div>
+    </div>`;
+  }
+}
+loadWeeklyGraph();
+
+/* CALENDAR */
+function generateCalendar(){
+  const calendar=document.getElementById("calendar");
+  calendar.innerHTML="";
+  const month=parseInt(monthSelect.value);
+  const year=new Date().getFullYear();
+  const today=new Date();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+
+  for(let i=1;i<=daysInMonth;i++){
+    let cls="day";
+    if(i===today.getDate() && month===today.getMonth()) cls+=" today";
+    calendar.innerHTML+=`<div class="${cls}" onclick="this.classList.toggle('active')">${i}</div>`;
+  }
+}
+monthSelect.value=new Date().getMonth();
+generateCalendar();
+
+/* CHATBOT */
+function toggleBot(){
+  bot.style.display=bot.style.display==="flex"?"none":"flex";
+  if(bot.style.display==="flex"){
+    botBody.innerHTML="<div class='msgB'>Hi 👋 I help with study plans, motivation, focus tips, and subjects!</div>";
+  }
+}
+function botSuggest(t){botInput.value=t;sendBot();}
+botInput.addEventListener("keydown",e=>{if(e.key==="Enter")sendBot();});
+function sendBot(){
+  let msg=botInput.value.toLowerCase();
+  if(!msg) return;
+  botBody.innerHTML+=`<div class="msgU">${msg}</div>`;
+  let reply="Stay consistent and take breaks!";
+  if(msg.includes("study plan")) reply="Make a daily timetable and revise every night.";
+  if(msg.includes("motivation")) reply="Small progress daily leads to big success!";
+  if(msg.includes("time")) reply="Use Pomodoro: 25 min study + 5 min break.";
+  if(msg.includes("subject")) reply="Start weak subjects first, finish with strong ones.";
+  botBody.innerHTML+=`<div class="msgB">${reply}</div>`;
+  botInput.value="";
+  botBody.scrollTop=botBody.scrollHeight;
+}
+
+update();
+</script>
+</body>
+</html>
